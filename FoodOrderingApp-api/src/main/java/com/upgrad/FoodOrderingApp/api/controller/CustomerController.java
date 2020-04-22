@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.upgrad.FoodOrderingApp.api.model.*;
 
+import java.util.UUID;
 
 
 @RestController
@@ -38,7 +39,7 @@ public class CustomerController {
 		customerEntity.setFirstName("first");
 		customerEntity.setPassword("password");
 		customerEntity.setSalt("salt");
-		customerEntity.setUuid("ASDFGCSDsdFxcsdV");
+		customerEntity.setUuid(UUID.randomUUID().toString());
 
 		final CustomerEntity responseCustomer = customerService.saveCustomer(customerEntity);
 		SignupCustomerResponse signupCustomerResponse = new SignupCustomerResponse();
@@ -69,6 +70,11 @@ public class CustomerController {
 	   LoginResponse loginResponse = new LoginResponse();
 	   return new ResponseEntity<LoginResponse>(loginResponse, HttpStatus.OK);
    }
+
+
+
+
+
 
 
 

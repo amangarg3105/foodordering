@@ -1,9 +1,11 @@
 package com.upgrad.FoodOrderingApp.service.dao;
 
+import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
 @Repository
@@ -20,7 +22,19 @@ public class CustomerDaoImpl implements CustomerDao {
 	}
 
 	@Override
-	public CustomerEntity getCustomer(String contactNumber) {
-		return null;
+	public CustomerEntity getCustomerByContactNumber(String contactNumber) {
+		try {
+			return entityManager.createNamedQuery("customerByContactNumber", CustomerEntity.class).setParameter("contactNumber", contactNumber).getSingleResult();
+		} catch (NoResultException nre) {
+			return null;
+		}
+	}
+
+	public CustomerAuthEntity getCustomerAuthByAccesstoken(String accesstoken) {
+		try {
+			return entityManager.createNamedQuery("customerAuthByAccesstoken", CustomerAuthEntity.class).setParameter("accesstoken", accesstoken).getSingleResult();
+		} catch (NoResultException nre) {
+			return null;
+		}
 	}
 }

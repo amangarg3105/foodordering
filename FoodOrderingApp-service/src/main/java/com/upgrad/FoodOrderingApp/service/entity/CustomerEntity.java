@@ -4,7 +4,6 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity @Table(name = "CUSTOMER")
-name
 public class CustomerEntity implements Serializable {
 
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Integer id;
