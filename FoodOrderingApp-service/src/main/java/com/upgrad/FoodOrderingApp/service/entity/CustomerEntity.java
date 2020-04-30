@@ -4,6 +4,9 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity @Table(name = "CUSTOMER")
+@NamedQueries({
+		@NamedQuery(name = "customerByContactNumber", query = "select c from CustomerEntity c where c.contactNumber =:contactNumber")
+})
 public class CustomerEntity implements Serializable {
 
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Integer id;

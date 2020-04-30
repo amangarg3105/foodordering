@@ -29,12 +29,12 @@ public class AddressController {
 	private AddressService addressService;
 
 	@RequestMapping(method = RequestMethod.POST, path = "/address", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<SaveAddressResponse> saveAddress(@RequestBody(required = false) final SaveAddressRequest saveAddressRequest, @RequestHeader("authorization") final String randomString) throws
+	public ResponseEntity<SaveAddressResponse> saveAddress(@RequestBody(required = false) final SaveAddressRequest saveAddressRequest, @RequestHeader("authorization") final String authorization) throws
 			AuthorizationFailedException, SaveAddressException, AddressNotFoundException {
 		String access_token = authorization.split("Bearer ")[1];
 
 		//validate the user first using this
-		CustomerEntity customerEntity = customerService.getCustomer(randomString);
+		CustomerEntity customerEntity = customerService.getCustomer(authorization);
 
 		final AddressEntity addressEntity = new AddressEntity();
 
@@ -50,7 +50,11 @@ public class AddressController {
 		customerAddressEntity.setCustomer(customerEntity);
 
 		final AddressEntity createdAddressEntity = addressService.saveAddress(addressEntity,customerAddressEntity);
+
+
 		SaveAddressResponse saveAddressResponse = new SaveAddressResponse().id(createdAddressEntity.getUuid()).status("ADDRESS SUCCESSFULLY REGISTERED");
+
+
 		return new ResponseEntity<SaveAddressResponse>(saveAddressResponse, HttpStatus.CREATED);
 	}
 

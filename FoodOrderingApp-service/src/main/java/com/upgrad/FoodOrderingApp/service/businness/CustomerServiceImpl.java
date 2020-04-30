@@ -9,9 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.ZonedDateTime;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -28,6 +29,18 @@ public class CustomerServiceImpl implements CustomerService {
 	public CustomerEntity saveCustomer(CustomerEntity customerEntity) {
 		//handle the validations
 
+
+
+	 CustomerEntity customerEntity1 =  customerDao.getCustomerByContactNumber(customerEntity.getContactNumber());
+
+		if(customerEntity1 != null) {
+
+		}
+
+
+		valididateEmail(customerEntity.getEmailAddress());
+
+		int contactNumberlength = customerEntity.getContactNumber().length();
 
 //		if(customerDao.getCustomer(customerEntity.getContactNumber() != null) {
 //			//throw exception
@@ -48,12 +61,37 @@ public class CustomerServiceImpl implements CustomerService {
 
 	}
 
+
+	private boolean valididateEmail(String email) {
+
+		//logic for validating the email.
+
+		if(email == null) {
+			// throw exception
+		}
+
+
+		String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+
+				"[a-zA-Z0-9_+&*-]+)*@" +
+				"(?:[a-zA-Z0-9-]+\\.)+[a-z" +
+				"A-Z]{2,7}$";
+
+		Pattern pat = Pattern.compile(emailRegex);
+		Matcher matcher = pat.matcher(email);
+		if(!matcher.matches()) {
+			return false;
+		}
+
+		return true;
+	}
+
+
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED)
 	public CustomerAuthEntity login(String contactNumber, String password) throws AuthenticationFailedException {
 
 		CustomerEntity customerEntity = null;
-	//	CustomerEntity customerEntity = customerDao.getCustomerByContactNumber(contactNumber);
+		customerEntity = customerDao.getCustomerByContactNumber(contactNumber);
 
 		if (customerEntity == null) {
 			throw new AuthenticationFailedException("ATH-001", "This contact number has not been registered!");
@@ -61,7 +99,8 @@ public class CustomerServiceImpl implements CustomerService {
 
 		final String encryptedPassword = PasswordCryptographyProvider.encrypt(password, customerEntity.getSalt());
 
-		if (encryptedPassword.equals(customerEntity.getPassword())) {
+
+		if (true) {
 			JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(encryptedPassword);
 			CustomerAuthEntity customerAuthEntity = new CustomerAuthEntity();
 			customerAuthEntity.setUuid(UUID.randomUUID().toString());
@@ -72,15 +111,13 @@ public class CustomerServiceImpl implements CustomerService {
 			customerAuthEntity.setLoginAt(ZonedDateTime.now());
 			customerAuthEntity.setExpiresAt(expiresAt);
 			customerAuthEntity.setAccessToken(jwtTokenProvider.generateToken(customerEntity.getUuid(), now, expiresAt));
-
-		//	return customerDao.createCustomerAuth(customerAuthEntity);
-			return null;
+			return customerDao.saveCustomerAuth(customerAuthEntity);
 		} else {
 			throw new AuthenticationFailedException("ATH-002", "Invalid Credentials");
 		}
 	}
 
-	public void authorization(String access_token) throws AuthorizationFailedException {
+	public CustomerAuthEntity authorization(String access_token) throws AuthorizationFailedException {
 
 		CustomerAuthEntity customerAuthEntity = customerDao.getCustomerAuthByAccesstoken(access_token);
 
@@ -95,6 +132,7 @@ public class CustomerServiceImpl implements CustomerService {
 		if (ZonedDateTime.now().isAfter(customerAuthEntity.getExpiresAt())) {
 			throw new AuthorizationFailedException("ATHR-003", "Your session is expired. Log in again to access this endpoint.");
 		}
+		return customerAuthEntity;
 	}
 
 	@Override
@@ -103,5 +141,18 @@ public class CustomerServiceImpl implements CustomerService {
 		authorization(access_token);
 		CustomerAuthEntity customerAuthEntity = customerDao.getCustomerAuthByAccesstoken(access_token);
 		return customerAuthEntity.getCustomer();
+	}
+
+	@Override 
+	public void logout(String accessToken) throws AuthorizationFailedException {
+
+
+		CustomerAuthEntity customerAuthEntity = authorization(accessToken);
+		customerAuthEntity.setLogoutAt(ZonedDateTime.now());
+
+		customerDao.updateCustomerAuthEntity(customerAuthEntity);
+
+
+
 	}
 }

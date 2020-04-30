@@ -9,4 +9,8 @@ public interface CustomerDao {
 
 	CustomerAuthEntity getCustomerAuthByAccesstoken(String accesstoken);
 	CustomerEntity getCustomerByContactNumber(String contactNumber);
+	CustomerAuthEntity saveCustomerAuth(CustomerAuthEntity customerAuthEntity);
+
+	CustomerEntity updateCustomerAuthEntity(CustomerAuthEntity customerAuthEntity);
+
 }

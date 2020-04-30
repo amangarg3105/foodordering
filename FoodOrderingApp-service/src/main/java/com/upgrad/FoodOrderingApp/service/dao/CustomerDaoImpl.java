@@ -30,6 +30,17 @@ public class CustomerDaoImpl implements CustomerDao {
 		}
 	}
 
+	@Override public CustomerAuthEntity saveCustomerAuth(CustomerAuthEntity customerAuthEntity) {
+		entityManager.persist(customerAuthEntity);
+		return customerAuthEntity;
+	}
+
+	@Override
+	public CustomerEntity updateCustomerAuthEntity(CustomerAuthEntity customerAuthEntity) {
+		 entityManager.persist(customerAuthEntity);
+		 return customerAuthEntity.getCustomer();
+	}
+
 	public CustomerAuthEntity getCustomerAuthByAccesstoken(String accesstoken) {
 		try {
 			return entityManager.createNamedQuery("customerAuthByAccesstoken", CustomerAuthEntity.class).setParameter("accesstoken", accesstoken).getSingleResult();
